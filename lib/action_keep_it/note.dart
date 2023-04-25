@@ -1,5 +1,5 @@
 class Note{
   String title;
-  String content;
-  Note(this.title, this.content);
+  String password;
+  Note(this.title, this.password);
 }

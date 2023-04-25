@@ -1,71 +1,76 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:my_keep_it/screen/UI.dart';
-import 'note.dart';
 
-List<Note> listNote = [];
+Future<dynamic> addNewPassword(BuildContext context, int? itemKey) async {
+  var _title = TextEditingController();
+  var _password = TextEditingController();
 
-class Add extends StatelessWidget {
-  Add({Key? key}) : super(key: key);
-  String? title;
-  String? content;
+  if (itemKey != null) {
+    final existingItem =
+        listHive.firstWhere((element) => element['key'] == itemKey);
+    _title.text = existingItem['name'];
+    _password.text = existingItem['password'];
+  }
 
-  @override
-  Widget build(BuildContext context) => GestureDetector(
-        onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
-        child: SafeArea(
-          child: Scaffold(
-            appBar: AppBar(
-              title: Text('Add Page'),
-              actions: [
-                IconButton(
-                    onPressed: () => showDialog(
-                        context: context,
-                        builder: (BuildContext context) => AlertDialog(
-                              title: Text('Save it!'),
-                              content: Text('Do you want to save?'),
-                              actions: [
-                                TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
-                                    child: Text('Cancel')),
-                                TextButton(
-                                    onPressed: () {}, child: Text('Save'))
-                              ],
-                            )),
-                    icon: Icon(Icons.save)),
-                SizedBox(width: 10),
-              ],
-            ),
-            body: Container(
-              padding: EdgeInsets.all(10),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  TextField(
-                    decoration: InputDecoration(
-                        label: Text('Title'),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5))),
-                    maxLines: 1,
-                    maxLength: 40,
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  TextField(
-                    decoration: InputDecoration(
-                        label: Text('Content'),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5))),
-                    maxLines: 10,
-                  )
-                ],
+  return showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text('Add information'),
+      actions: [
+        Container(
+          width: 300,
+          height: 200,
+          child: Column(
+            children: [
+              //title
+              TextField(
+                controller: _title,
+                decoration: InputDecoration(hintText: 'Title'),
               ),
-            ),
+              SizedBox(
+                height: 20,
+              ),
+              //password
+              TextField(
+                controller: _password,
+                decoration: InputDecoration(
+                  hintText: 'Password',
+                ),
+              ),
+            ],
           ),
         ),
-      );
+        const SizedBox(
+          height: 10,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Cancel')),
+            const SizedBox(
+              width: 20,
+            ),
+            ElevatedButton(
+                onPressed: () {
+                  if (itemKey == null) {
+                    createItem(
+                        {'title': _title.text, 'password': _password.text});
+                  }
+
+                  if (itemKey != null) {
+                    updateItem(itemKey,
+                        {'title': _title.text, 'password': _password.text});
+                  }
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Save')),
+          ],
+        )
+      ],
+    ),
+  );
 }
